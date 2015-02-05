@@ -1141,9 +1141,8 @@ done:
 	kobject_uevent(&dev->kobj, KOBJ_REMOVE);
 	kobject_del(&dev->kobj);
  Error:
-	cleanup_device_parent(dev);
-	if (parent)
-		put_device(parent);
+	cleanup_glue_dir(dev, glue_dir);
+	put_device(parent);
 name_error:
 	kfree(dev->p);
 	dev->p = NULL;
