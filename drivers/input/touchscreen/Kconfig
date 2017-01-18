@@ -1136,4 +1136,11 @@ config TOUCHSCREEN_TOUCHX
 config TOUCHSCREEN_DOUBLETAP2WAKE
 	tristate "DoubleTap2Wake for touchscreens"
 	default n
+
+config TOUCHBOOST_CONTROL
+	bool "Touch boost control"
+	depends on INPUT_TOUCHSCREEN
+	help
+          Simple Touch Boost Driver.
+
 endif
