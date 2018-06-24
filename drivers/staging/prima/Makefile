@@ -3,6 +3,12 @@
 MODNAME := wlan
 WLAN_ROOT := drivers/staging/prima
 
+#Flag to enable AP Find feature
+CONFIG_WLAN_FEATURE_AP_FIND := y
+
+# Flag to enable feature Software AP Authentication Offload
+SAP_AUTH_OFFLOAD := y
+
 # To enable CONFIG_QCOM_ESE_UPLOAD, dependent config
 # CONFIG_QCOM_ESE must be enabled.
 CONFIG_QCOM_ESE := n
@@ -180,6 +186,10 @@ ifeq ($(CONFIG_QCOM_TDLS),y)
 MAC_LIM_OBJS += $(MAC_SRC_DIR)/pe/lim/limProcessTdls.o
 endif
 
+ifeq ($(CONFIG_PRIMA_WLAN_LFR_MBB),y)
+MAC_LIM_OBJS += $(MAC_SRC_DIR)/pe/lim/lim_mbb.o
+endif
+
 MAC_PMM_OBJS := $(MAC_SRC_DIR)/pe/pmm/pmmAP.o \
 		$(MAC_SRC_DIR)/pe/pmm/pmmApi.o \
 		$(MAC_SRC_DIR)/pe/pmm/pmmDebug.o
@@ -239,6 +249,10 @@ endif
 
 ifeq ($(CONFIG_QCOM_TDLS),y)
 SME_CSR_OBJS += $(SME_SRC_DIR)/csr/csrTdlsProcess.o
+endif
+
+ifeq ($(CONFIG_PRIMA_WLAN_LFR_MBB),y)
+SME_CSR_OBJS += $(SME_SRC_DIR)/csr/csr_roam_mbb.o
 endif
 
 SME_PMC_OBJS := $(SME_SRC_DIR)/pmc/pmcApi.o \
@@ -519,7 +533,9 @@ CDEFINES :=	-DANI_BUS_TYPE_PLATFORM=1 \
                 -DWLAN_FEATURE_LINK_LAYER_STATS \
                 -DWLAN_FEATURE_EXTSCAN \
                 -DFEATURE_EXT_LL_STAT \
-                -DWLAN_VOWIFI_DEBUG
+                -DWLAN_VOWIFI_DEBUG \
+		-DDHCP_SERVER_OFFLOAD \
+		-DWLAN_FEATURE_TSF
 
 ifneq ($(CONFIG_PRONTO_WLAN),)
 CDEFINES += -DWCN_PRONTO
@@ -572,6 +588,10 @@ ifeq ($(CONFIG_PRIMA_WLAN_LFR),y)
 CDEFINES += -DFEATURE_WLAN_LFR
 endif
 
+ifeq ($(CONFIG_PRIMA_WLAN_LFR_MBB),y)
+CDEFINES += -DWLAN_FEATURE_LFR_MBB
+endif
+
 ifeq ($(CONFIG_PRIMA_WLAN_OKC),y)
 CDEFINES += -DFEATURE_WLAN_OKC
 endif
@@ -610,6 +630,15 @@ ifeq ($(CONFIG_ENABLE_LINUX_REG), y)
 CDEFINES += -DCONFIG_ENABLE_LINUX_REG
 endif
 
+# Enable feature SAP Authentication Offload
+ifeq ($(SAP_AUTH_OFFLOAD), y)
+CDEFINES += -DSAP_AUTH_OFFLOAD
+endif
+
+ifeq ($(CONFIG_WLAN_FEATURE_AP_FIND), y)
+CDEFINES += -DWLAN_FEATURE_APFIND
+endif
+
 CDEFINES += -DFEATURE_WLAN_CH_AVOID
 CDEFINES += -DWLAN_FEATURE_AP_HT40_24G
 
@@ -629,6 +658,10 @@ EXTRA_CFLAGS += -Wno-unused-function
 
 ifeq ($(CONFIG_WLAN_OFFLOAD_PACKETS),y)
 CDEFINES += -DWLAN_FEATURE_OFFLOAD_PACKETS
+endif
+
+ifeq ($(CONFIG_MDNS_OFFLOAD_SUPPORT), y)
+CDEFINES += -DMDNS_OFFLOAD
 endif
 
 KBUILD_CPPFLAGS += $(CDEFINES)
