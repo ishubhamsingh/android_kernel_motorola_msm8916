@@ -131,6 +131,16 @@ static inline unsigned int __attribute_const__ read_cpuid_part_number(void)
 	return read_cpuid_id() & 0xFFF0;
 }
 
+/*
+ * The CPU part number is meaningless without referring to the CPU
+ * implementer: implementers are free to define their own part numbers
+ * which are permitted to clash with other implementer part numbers.
+ */
+static inline unsigned int __attribute_const__ read_cpuid_part(void)
+{
+	return read_cpuid_id() & 0xff00fff0;
+}
+
 static inline unsigned int __attribute_const__ xscale_cpu_arch_version(void)
 {
 	return read_cpuid_part_number() & ARM_CPU_XSCALE_ARCH_MASK;
